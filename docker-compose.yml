@@ -1,0 +1,31 @@
+services:
+  elasticsearch:
+    image: elasticsearch:8.17.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node # Enables single-node mode for development
+      - xpack.security.enabled=false # Disables security features (for simplicity in dev)
+      - bootstrap.memory_lock=true # Prevents swapping (recommended for performance)
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200" # REST API port
+      - "9300:9300" # Cluster communication port
+    volumes:
+      - es_data:/usr/share/elasticsearch/data # Persistent storage for Elasticsearch
+
+  kibana:
+    image: kibana:8.17.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200 # Connect Kibana to Elasticsearch
+    ports:
+      - "5601:5601" # Kibana web interface port
+    depends_on:
+      - elasticsearch
+
+volumes:
+  es_data:
+    driver: local
